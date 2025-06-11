@@ -1,4 +1,4 @@
-import Usuario from "../models/usuario.model";
+import Usuario from "../models/usuario.model.js";
 
 class UsuarioRepository {
     static async getAll() {
@@ -6,6 +6,9 @@ class UsuarioRepository {
     }
     static async getById(id) {
         return await Usuario.findById(id);
+    }
+    static async getByName(name) {
+        return await Usuario.findOne({ name: name });
     }
     static async getByEmail(email) {
         return await Usuario.findOne({ email });

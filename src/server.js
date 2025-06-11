@@ -9,6 +9,7 @@ import insumosRoute from "./routes/isumos.route.js";
 import consumosRoute from "./routes/consumos.route.js";
 import usuarioRoute from "./routes/usuarios.route.js";
 import reporteRoute from "./routes/reportes.route.js";
+import errorHandle from "./middlewares/error.handle.middleware.js";
 
 const PORT = 8080;
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/consumo", consumosRoute);
 app.use("/api/usuario", usuarioRoute);
 app.use("/api/reporte", reporteRoute);
 
+app.use(errorHandle);
 app.listen(PORT, () => {
     console.log(`El servidor se esta ejecutando en http://localhost:${PORT}`);
 });

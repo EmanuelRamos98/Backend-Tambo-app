@@ -23,10 +23,12 @@ const authMiddleware = (rolesPermitidos) => {
             const decoded = jwt.verify(token, ENVIROMENT.SECRET_KEY);
             req.user = decoded;
 
-            if (!rolesPermitidos.includes(decoded.rol)) {
-                return next(
-                    new AppError("Acceso denegado: rol isuficiente", 403)
-                );
+            if (Array.isArray(rolesPermitidos) && rolesPermitidos.length > 0) {
+                if (!rolesPermitidos.includes(decoded.rol)) {
+                    return next(
+                        new AppError("Acceso denegado: rol isuficiente", 403)
+                    );
+                }
             }
             next();
         } catch (error) {
@@ -34,3 +36,5 @@ const authMiddleware = (rolesPermitidos) => {
         }
     };
 };
+
+export default authMiddleware;

@@ -1,23 +1,38 @@
 import express from "express";
+import authMiddleware from "../middlewares/auth.meddleware.js";
 import {
-    loginController,
+    activeUsuarioController,
+    deleteUsuarioController,
+    desactiveUsuarioController,
+    getUsuarioByIdController,
+    getUsuariosController,
     registerController,
+    updateUsuarioController,
 } from "../controllers/usuarios.controller.js";
 
 const usuarioRoute = express.Router();
 
-//Manejo usuarios internos creados por el user-admin
-usuarioRoute.get("/", () => {});
-usuarioRoute.post("/", () => {});
-usuarioRoute.get("/:id", () => {});
-usuarioRoute.put("/:id", () => {});
-usuarioRoute.delete("/:id", () => {});
-
-//Manejo y creacion de user-admin
-usuarioRoute.post("/register", registerController);
-usuarioRoute.post("/login", loginController);
-usuarioRoute.get("/verify-email/:token_validation", () => {});
-usuarioRoute.put("/password/:token_recuperation", () => {});
-usuarioRoute.post("/forgot-password", () => {});
+//Manejo usuarios internos creados por el admin
+//obtener users
+usuarioRoute.get("/", authMiddleware(["admin"]), getUsuariosController);
+//crear users
+usuarioRoute.post("/crear", authMiddleware(["admin"]), registerController);
+//obtener user por id
+usuarioRoute.get("/:id", authMiddleware(["admin"]), getUsuarioByIdController);
+//actualizar user
+usuarioRoute.put("/:id", authMiddleware(["admin"]), updateUsuarioController);
+//activar o desactivar
+usuarioRoute.put(
+    "/:id/activar",
+    authMiddleware(["admin"]),
+    activeUsuarioController
+);
+usuarioRoute.put(
+    "/:id/desactivar",
+    authMiddleware(["admin"]),
+    desactiveUsuarioController
+);
+//eliminar
+usuarioRoute.delete("/:id", authMiddleware(["admin"]), deleteUsuarioController);
 
 export default usuarioRoute;

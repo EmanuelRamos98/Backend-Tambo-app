@@ -2,7 +2,7 @@ import Usuario from "../models/usuario.model.js";
 
 class UsuarioRepository {
     static async getAll() {
-        return await Usuario.find();
+        return await Usuario.find({ rol: { $ne: "admin" } });
     }
     static async getById(id) {
         return await Usuario.findById(id);

@@ -6,6 +6,8 @@ class Validations {
 
     isString(field_name) {
         const valor = this.valor[field_name];
+        if (valor === undefined) return this;
+
         if (typeof valor !== "string") {
             this.error.push({
                 field: field_name,
@@ -17,6 +19,8 @@ class Validations {
 
     isEmail(field_name) {
         const valor = this.valor[field_name];
+        if (valor === undefined) return this;
+
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!regex.test(valor)) {
             this.error.push({
@@ -29,6 +33,8 @@ class Validations {
 
     min_max_length(field_name, min_length, max_length) {
         const valor = this.valor[field_name];
+        if (valor === undefined) return this;
+
         if (valor.length < min_length) {
             this.error.push({
                 field: field_name,

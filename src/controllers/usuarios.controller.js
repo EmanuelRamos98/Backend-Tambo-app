@@ -20,7 +20,7 @@ export const registerController = async (req, res, next) => {
 
         validacion
             .isString("name")
-            .min_max_length("name", 0, 20)
+            .min_max_length("name", 1, 20)
             .isEmail("email")
             .isString("password")
             .min_max_length("password", 8, 20);
@@ -47,42 +47,123 @@ export const registerController = async (req, res, next) => {
     }
 };
 
-export const loginController = async (req, res, next) => {
+export const getUsuariosController = async (req, res, next) => {
     try {
-        const { name, password } = req.body;
+        const usuarios = await UsuarioRepository.getAll();
+        return res
+            .status(200)
+            .json(new ApiResponse(200, "Lista de usuarios", usuarios));
+    } catch (error) {
+        next(error);
+    }
+};
 
-        if (!name || !password) {
+export const getUsuarioByIdController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return next(new AppError("Falta user Id", 400));
+        }
+
+        const user = await UsuarioRepository.getById(id);
+        if (!user) {
+            return next(new AppError("El usuario no existe", 404));
+        }
+
+        return res.status(200).json(new ApiResponse(200, "Usuario", user));
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const updateUsuarioController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return next(new AppError("Falta user Id", 400));
+        }
+
+        const { name, password, email, rol } = req.body;
+        const validacion = new Validations({ name, email, password, rol });
+
+        validacion
+            .isString("name")
+            .min_max_length("name", 1, 20)
+            .isEmail("email")
+            .isString("password")
+            .min_max_length("password", 8, 20);
+
+        const errores = validacion.obtenerErrores();
+
+        if (errores.length > 0) {
+            return next(new AppError("Errores de validacion", 400, errores));
+        }
+
+        const new_data = {};
+
+        if (name) {
+            new_data.name = name;
+        }
+        if (password) {
+            const new_password = await bcrypt.hash(password, 10);
+            new_data.password = new_password;
+        }
+        if (email) {
+            new_data.email = email;
+        }
+        if (rol) {
+            new_data.rol = rol;
+        }
+
+        await UsuarioRepository.update(id, new_data);
+        return res.status(200).json(new ApiResponse(200, "Succes"));
+    } catch (error) {
+        if (error.code === 11000) {
             return next(
-                new AppError("Todos los campos deben estar completos", 400)
+                new AppError("El user name ya esta en uso o el email", 500)
             );
         }
+        next(error);
+    }
+};
 
-        const user = await UsuarioRepository.getByName(name);
-        if (!user) {
-            return next(new AppError("Usuario no existente", 401));
+export const activeUsuarioController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return next(new AppError("Falta id", 404));
         }
 
-        const passwordMach = await bcrypt.compare(password, user.password);
-        if (!passwordMach) {
-            return next(new AppError("Contraseña incorrecta", 401));
+        await UsuarioRepository.activar(id);
+        return res.status(200).json(new ApiResponse(200, "Succes"));
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const desactiveUsuarioController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return next(new AppError("Falta id", 404));
         }
 
-        const TOKEN = jwt.sign(
-            {
-                id: user._id,
-                name: user.name,
-                rol: user.rol,
-            },
-            ENVIROMENT.SECRET_KEY,
-            { expiresIn: "1d" }
-        );
+        await UsuarioRepository.desactivar(id);
+        return res.status(200).json(new ApiResponse(200, "Succes"));
+    } catch (error) {
+        next(error);
+    }
+};
 
-        return res.status(200).json(
-            new ApiResponse(200, "Login sussces", {
-                name: user.name,
-                acces_token: TOKEN,
-            })
-        );
+export const deleteUsuarioController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return next(new AppError("Falta id", 404));
+        }
+
+        await UsuarioRepository.delete(id);
+        return res.status(200).json(new ApiResponse(200, "Succes"));
     } catch (error) {
         next(error);
     }

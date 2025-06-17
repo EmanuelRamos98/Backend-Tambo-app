@@ -1,6 +1,6 @@
-import Rodeo from "../models/rodeo.model";
+import Rodeo from "../models/rodeo.model.js";
 
-class RodeoRopository {
+class RodeoRepository {
     static async getByTambo(tamboId) {
         return await Rodeo.find({ tambo: tamboId });
     }
@@ -18,4 +18,4 @@ class RodeoRopository {
     }
 }
 
-export default RodeoRopository;
+export default RodeoRepository;

@@ -1,4 +1,4 @@
-import Tambo from "../models/tambo.model";
+import Tambo from "../models/tambo.model.js";
 
 class TamboRepository {
     static async getAll() {
@@ -12,6 +12,20 @@ class TamboRepository {
     }
     static async update(id, data) {
         return await Tambo.findByIdAndUpdate(id, data, { new: true });
+    }
+    static async activar(id) {
+        return await Tambo.findByIdAndUpdate(
+            id,
+            { activo: true },
+            { new: true }
+        );
+    }
+    static async desactivar(id) {
+        return await Tambo.findByIdAndUpdate(
+            id,
+            { activo: false },
+            { new: true }
+        );
     }
     static async delete(id) {
         return await Tambo.findByIdAndDelete(id);

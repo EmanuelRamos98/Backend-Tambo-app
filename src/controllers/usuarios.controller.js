@@ -50,6 +50,9 @@ export const registerController = async (req, res, next) => {
 export const getUsuariosController = async (req, res, next) => {
     try {
         const usuarios = await UsuarioRepository.getAll();
+        if (!usuarios) {
+            return next(new AppError("No se encontraron usuarios", 404));
+        }
         return res
             .status(200)
             .json(new ApiResponse(200, "Lista de usuarios", usuarios));

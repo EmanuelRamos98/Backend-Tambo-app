@@ -8,7 +8,7 @@ class UsuarioRepository {
         return await Usuario.findById(id);
     }
     static async getByName(name) {
-        return await Usuario.findOne({ name: name });
+        return await Usuario.findOne({ name: name }).select("+password");
     }
     static async getByEmail(email) {
         return await Usuario.findOne({ email });

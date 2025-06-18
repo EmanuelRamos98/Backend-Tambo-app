@@ -1,4 +1,4 @@
-import Vaca from "../models/vaca.model";
+import Vaca from "../models/vaca.model.js";
 
 class VacaRepository {
     static async getByRodeo(rodeoId) {
@@ -8,7 +8,7 @@ class VacaRepository {
         return await Vaca.findById(id);
     }
     static async create(new_data) {
-        return await Vaca.create(new_data);
+        return await Vaca.insertMany(new_data);
     }
     static async update(id, data) {
         return await Vaca.findByIdAndUpdate(id, data, { new: true });

@@ -1,4 +1,4 @@
-import Consumo from "../models/consumo.model";
+import Consumo from "../models/consumo.model.js";
 
 class ConsumoRepository {
     static async getByRodeo(rodeoId) {

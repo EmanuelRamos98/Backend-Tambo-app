@@ -42,7 +42,7 @@ class Validations {
             });
         }
         if (valor.length > max_length) {
-            this.valor.push({
+            this.error.push({
                 field: field_name,
                 message: `El valor de ${field_name} debe tener un maximo de ${max_length}`,
             });

@@ -1,4 +1,4 @@
-import Insumo from "../models/insumo.model";
+import Insumo from "../models/insumo.model.js";
 
 class InsumoRepository {
     static async getAll() {

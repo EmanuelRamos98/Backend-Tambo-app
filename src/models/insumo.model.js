@@ -7,7 +7,17 @@ const insumoSchema = new mongoose.Schema({
         enum: ["alimento", "medicamento", "vacuna", "otro"],
         required: true,
     },
-    unidad: { type: String, enum: ["kg", "l", "unidades"], required: true },
+    unidad: {
+        type: String,
+        enum: ["kg", "l", "unidades"],
+        required: true,
+    },
+    stock: {
+        type: Number,
+        required: true,
+        default: 0,
+        min: 0,
+    },
     costoUnitario: Number,
 });
 

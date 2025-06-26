@@ -13,6 +13,9 @@ class ConsumoRepository {
     static async create(new_data) {
         return await Consumo.create(new_data);
     }
+    static async update(id, new_data) {
+        return await Consumo.findByIdAndUpdate(id, new_data);
+    }
     static async delete(id) {
         return await Consumo.findByIdAndDelete(id);
     }

@@ -29,6 +29,7 @@ export const loginController = async (req, res, next) => {
             {
                 id: user._id,
                 name: user.name,
+                activo: user.activo,
                 rol: user.rol,
             },
             ENVIROMENT.SECRET_KEY,

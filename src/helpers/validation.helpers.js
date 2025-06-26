@@ -17,6 +17,19 @@ class Validations {
         return this;
     }
 
+    isNumber(field_name) {
+        const valor = this.valor[field_name];
+        if (valor === undefined) return this;
+
+        if (typeof valor !== "number" || valor < 0) {
+            this.error.push({
+                field: field_name,
+                message: `El valor de ${field_name} debe ser un NUMERO ENTERO`,
+            });
+        }
+        return this;
+    }
+
     isEmail(field_name) {
         const valor = this.valor[field_name];
         if (valor === undefined) return this;

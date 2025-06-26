@@ -23,6 +23,12 @@ const authMiddleware = (rolesPermitidos) => {
             const decoded = jwt.verify(token, ENVIROMENT.SECRET_KEY);
             req.user = decoded;
 
+            if (!req.user.activo) {
+                return next(
+                    new AppError("Acceso denegado: usuario desactivado", 403)
+                );
+            }
+
             if (Array.isArray(rolesPermitidos) && rolesPermitidos.length > 0) {
                 if (!rolesPermitidos.includes(decoded.rol)) {
                     return next(

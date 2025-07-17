@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import AppError from "../helpers/errors.helpers.js";
 import VacaRepository from "../repositories/vaca.repository.js";
-import Validations from "../helpers/validation.helpers.js";
 import ApiResponse from "../helpers/api.response.helpers.js";
 import RodeoRepository from "../repositories/rodeo.repository.js";
 import { funcionCrearObj, validarInput } from "../helpers/funciones.helpers.js";
@@ -24,7 +23,7 @@ export const createVacaController = async (req, res, next) => {
                 continue;
             }
 
-            const errores = validarInput(req.body, {
+            const errores = validarInput(vaca, {
                 caravana: { type: "string", min: 1, max: 9 },
                 raza: { type: "string", min: 1, max: 50 },
             });
@@ -71,6 +70,11 @@ export const createVacaController = async (req, res, next) => {
                 new ApiResponse(201, "vacas creadas con exito", vacasGuardadas)
             );
     } catch (error) {
+        if (error.code === 11000) {
+            return next(
+                new AppError("No se puden repetir numero de caravana", 400)
+            );
+        }
         next(error);
     }
 };

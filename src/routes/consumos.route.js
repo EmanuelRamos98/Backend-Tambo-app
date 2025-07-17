@@ -41,13 +41,13 @@ consumosRoute.post(
 consumosRoute.put(
     "/:id",
     authMiddleware(),
-    validarId("ID", "ID de consumo"),
+    validarId("id", "ID de consumo"),
     updateConsumoController
 );
 consumosRoute.delete(
     "/:id",
     authMiddleware(["admin"]),
-    validarId("ID", "ID de consumo"),
+    validarId("id", "ID de consumo"),
     deleteConsumoController
 );
 

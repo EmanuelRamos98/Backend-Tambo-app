@@ -29,32 +29,32 @@ vacaRoute.post(
 vacaRoute.get(
     "/:id",
     authMiddleware(),
-    validarId("Id", "ID de vaca"),
+    validarId("id", "ID de vaca"),
     getVacaByIdController
 );
 vacaRoute.put(
     "/:id",
     authMiddleware(),
-    validarId("Id", "ID de vaca"),
+    validarId("id", "ID de vaca"),
     updateVacaController
 );
 vacaRoute.get(
     "/:id/seguimiento",
     authMiddleware(),
-    validarId("Id", "ID de vaca"),
+    validarId("id", "ID de vaca"),
     seguimientoController
 );
 vacaRoute.delete(
     "/:id",
     authMiddleware(),
-    validarId("Id", "ID de vaca"),
+    validarId("id", "ID de vaca"),
     deleteVacaController
 );
 
 vacaRoute.post(
     "/:id/mover",
     authMiddleware(),
-    validarId("Id", "ID de vaca"),
+    validarId("id", "ID de vaca"),
     moverVacaController
 );
 

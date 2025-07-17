@@ -1,16 +1,16 @@
 import Validations from "./validation.helpers.js";
 
 //Funcion que crea el objeto new_data
-export const funcionCrearObj = (campos, body, adicionales) => {
-    const data = { ...adicionales };
+export const funcionCrearObj = (campos, body, adicionales = {}) => {
+    const data = {};
     campos.forEach((campo) => {
         if (body[campo] !== undefined) {
             data[campo] = body[campo];
         }
     });
-    return data;
+    return { ...data, ...adicionales };
 };
-export const validarId = () => {};
+
 //Funcion para validar los inputs mediante la clase VALIDATIONS
 export const validarInput = (data, schema) => {
     const validacion = new Validations(data);
@@ -39,4 +39,14 @@ export const validarInput = (data, schema) => {
     }
 
     return validacion.obtenerErrores();
+};
+
+//Funcion para validar fechas
+export const validarFechas = (fechas) => {
+    for (const [campo, valor] of Object.entries(fechas)) {
+        if (valor && isNaN(Date.parse(valor))) {
+            return `'${campo}' no es una fecha valida`;
+        }
+    }
+    return null;
 };

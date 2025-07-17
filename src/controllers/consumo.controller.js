@@ -54,11 +54,10 @@ export const createConsumoRodeo = async (req, res, next) => {
         await insumoExiste.save();
 
         const new_data = funcionCrearObj(
-            ["insumo", "cantidad", " observaciones "],
+            ["insumo", "cantidad", "observaciones"],
             req.body,
-            { redeo: rodeoId }
+            { rodeo: rodeoId }
         );
-
         const newConsumo = await ConsumoRepository.create(new_data);
 
         return res.status(201).json(new ApiResponse(201, "Succes", newConsumo));
@@ -133,7 +132,7 @@ export const createConsumoVaca = async (req, res, next) => {
         await insumoExiste.save();
 
         const new_data = funcionCrearObj(
-            ["insumo", "cantidad", " observaciones "],
+            ["insumo", "cantidad", "observaciones"],
             req.body,
             { vaca: vacaId }
         );

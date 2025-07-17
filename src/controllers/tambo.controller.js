@@ -1,10 +1,6 @@
 import ApiResponse from "../helpers/api.response.helpers.js";
 import AppError from "../helpers/errors.helpers.js";
-import {
-    funcionCrearObj,
-    validarId,
-    validarInput,
-} from "../helpers/funciones.helpers.js";
+import { funcionCrearObj, validarInput } from "../helpers/funciones.helpers.js";
 import TamboRepository from "../repositories/tambo.repository.js";
 
 export const createTamboController = async (req, res, next) => {

@@ -4,14 +4,11 @@ import VacaRepository from "../repositories/vaca.repository.js";
 import Validations from "../helpers/validation.helpers.js";
 import ApiResponse from "../helpers/api.response.helpers.js";
 import RodeoRepository from "../repositories/rodeo.repository.js";
+import { funcionCrearObj, validarInput } from "../helpers/funciones.helpers.js";
 
 export const createVacaController = async (req, res, next) => {
     try {
         const { rodeoId } = req.params;
-        if (!rodeoId || !mongoose.Types.ObjectId.isValid(rodeoId)) {
-            return next(new AppError("Invalid Id", 400));
-        }
-
         const vacas = Array.isArray(req.body) ? req.body : [req.body];
         const vacasValidas = [];
         const erroresGenerales = [];
@@ -27,15 +24,11 @@ export const createVacaController = async (req, res, next) => {
                 continue;
             }
 
-            const validacion = new Validations({ caravana, raza });
+            const errores = validarInput(req.body, {
+                caravana: { type: "string", min: 1, max: 9 },
+                raza: { type: "string", min: 1, max: 50 },
+            });
 
-            validacion
-                .isString("caravana")
-                .min_max_length("caravana", 1, 9)
-                .isString("raza")
-                .min_max_length("raza", 1, 50);
-
-            const errores = validacion.obtenerErrores();
             if (errores.length > 0) {
                 const mensajes = errores.map((err) => err.message).join(", ");
                 erroresGenerales.push(`Errores en vaca ${index}: ${mensajes}`);
@@ -85,9 +78,6 @@ export const createVacaController = async (req, res, next) => {
 export const getVacasController = async (req, res, next) => {
     try {
         const { rodeoId } = req.params;
-        if (!rodeoId || !mongoose.Types.ObjectId.isValid(rodeoId)) {
-            return next(new AppError("Invalid Id", 400));
-        }
 
         const vacas = await VacaRepository.getByRodeo(rodeoId);
         if (!vacas) {
@@ -104,10 +94,6 @@ export const getVacasController = async (req, res, next) => {
 export const getVacaByIdController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("Invalid Id", 400));
-        }
-
         const vaca = await VacaRepository.getById(id);
         if (!vaca) {
             return next(new AppError("No se encontro la vaca", 404));
@@ -121,23 +107,14 @@ export const getVacaByIdController = async (req, res, next) => {
 export const updateVacaController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("Invalid Id", 400));
-        }
+        const { fechaNacimiento } = req.body;
 
-        const { caravana, fechaNacimiento, raza, estado } = req.body;
+        const errores = validarInput(req.body, {
+            caravana: { type: "string", min: 1, max: 9 },
+            raza: { type: "string", min: 1, max: 50 },
+            estado: { type: "string", min: 1, max: 15 },
+        });
 
-        const validacion = new Validations({ caravana, raza, estado });
-
-        validacion
-            .isString("caravana")
-            .min_max_length("caravana", 1, 9)
-            .isString("raza")
-            .min_max_length("raza", 1, 50)
-            .isString("estado")
-            .min_max_length("estado", 1, 15);
-
-        const errores = validacion.obtenerErrores();
         if (errores.length > 0) {
             return next(new AppError("Errores de validacion", 400, errores));
         }
@@ -152,12 +129,11 @@ export const updateVacaController = async (req, res, next) => {
                 return next(new AppError("La fecha no puede ser futura", 400));
             }
         }
-        const new_data = {};
 
-        if (caravana) new_data.caravana = caravana;
-        if (fechaNacimiento) new_data.fechaNacimiento = fechaNacimiento;
-        if (raza) new_data.raza = raza;
-        if (estado) new_data.estado = estado;
+        const new_data = funcionCrearObj(
+            ["caravana", "fechaNacimiento", "raza", "estado"],
+            req.body
+        );
 
         const updateVaca = await VacaRepository.update(id, new_data);
         return res.status(200).json(new ApiResponse(200, "Succes", updateVaca));
@@ -169,9 +145,6 @@ export const updateVacaController = async (req, res, next) => {
 export const seguimientoController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("Invalid Id", 400));
-        }
 
         const vaca = await VacaRepository.getById(id);
         if (!vaca) {
@@ -198,10 +171,6 @@ export const seguimientoController = async (req, res, next) => {
 export const deleteVacaController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("Invalid Id", 400));
-        }
-
         await VacaRepository.delete(id);
         return res.status(200).json(new ApiResponse(200, "Succes"));
     } catch (error) {
@@ -212,10 +181,6 @@ export const deleteVacaController = async (req, res, next) => {
 export const moverVacaController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("Invalid Id", 400));
-        }
-
         const { rodeoId } = req.body;
         if (!rodeoId || !mongoose.Types.ObjectId.isValid(rodeoId)) {
             return next(new AppError("Invalid Id", 400));

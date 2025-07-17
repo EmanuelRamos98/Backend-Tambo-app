@@ -6,6 +6,7 @@ import ApiResponse from "../helpers/api.response.helpers.js";
 import InsumoRepository from "../repositories/insumo.repository.js";
 import RodeoRepository from "../repositories/rodeo.repository.js";
 import VacaRepository from "../repositories/vaca.repository.js";
+import { funcionCrearObj, validarInput } from "../helpers/funciones.helpers.js";
 
 export const createConsumoRodeo = async (req, res, next) => {
     try {
@@ -17,10 +18,7 @@ export const createConsumoRodeo = async (req, res, next) => {
             );
         }
 
-        if (
-            !mongoose.Types.ObjectId.isValid(insumo) ||
-            !mongoose.Types.ObjectId.isValid(rodeoId)
-        ) {
+        if (!mongoose.Types.ObjectId.isValid(insumo)) {
             return next(new AppError("ID no valido"));
         }
 
@@ -34,14 +32,11 @@ export const createConsumoRodeo = async (req, res, next) => {
             return next(new AppError("No existe este redeo", 404));
         }
 
-        const validacion = new Validations({ cantidad, observaciones });
+        const errores = validarInput(req.body, {
+            cantidad: { type: "number" },
+            observaciones: { type: "string", min: 1, max: 100 },
+        });
 
-        validacion
-            .isNumber("cantidad")
-            .isString("observaciones")
-            .min_max_length("observaciones", 1, 100);
-
-        const errores = validacion.obtenerErrores();
         if (errores.length > 0) {
             return next(new AppError("Errores de validacion", 400, errores));
         }
@@ -58,7 +53,11 @@ export const createConsumoRodeo = async (req, res, next) => {
         insumoExiste.stock -= cantidad;
         await insumoExiste.save();
 
-        const new_data = { insumo, cantidad, rodeo: rodeoId, observaciones };
+        const new_data = funcionCrearObj(
+            ["insumo", "cantidad", " observaciones "],
+            req.body,
+            { redeo: rodeoId }
+        );
 
         const newConsumo = await ConsumoRepository.create(new_data);
 
@@ -71,9 +70,6 @@ export const createConsumoRodeo = async (req, res, next) => {
 export const getConsumoRodeo = async (req, res, next) => {
     try {
         const { rodeoId } = req.params;
-        if (!rodeoId || !mongoose.Types.ObjectId.isValid(rodeoId)) {
-            return next(new AppError("ID no valido"));
-        }
 
         const rodeoExiste = await RodeoRepository.getById(rodeoId);
         if (!rodeoExiste) {
@@ -101,10 +97,7 @@ export const createConsumoVaca = async (req, res, next) => {
             );
         }
 
-        if (
-            !mongoose.Types.ObjectId.isValid(insumo) ||
-            !mongoose.Types.ObjectId.isValid(vacaId)
-        ) {
+        if (!mongoose.Types.ObjectId.isValid(insumo)) {
             return next(new AppError("ID no valido"));
         }
 
@@ -118,14 +111,11 @@ export const createConsumoVaca = async (req, res, next) => {
             return next(new AppError("No existe esta vaca", 404));
         }
 
-        const validacion = new Validations({ cantidad, observaciones });
+        const errores = validarInput(req.body, {
+            cantidad: { type: "number" },
+            observaciones: { type: "string", min: 1, max: 100 },
+        });
 
-        validacion
-            .isNumber("cantidad")
-            .isString("observaciones")
-            .min_max_length("observaciones", 1, 100);
-
-        const errores = validacion.obtenerErrores();
         if (errores.length > 0) {
             return next(new AppError("Errores de validacion", 400, errores));
         }
@@ -142,7 +132,11 @@ export const createConsumoVaca = async (req, res, next) => {
         insumoExiste.stock -= cantidad;
         await insumoExiste.save();
 
-        const new_data = { insumo, cantidad, vaca: vacaId, observaciones };
+        const new_data = funcionCrearObj(
+            ["insumo", "cantidad", " observaciones "],
+            req.body,
+            { vaca: vacaId }
+        );
 
         const newConsumo = await ConsumoRepository.create(new_data);
 
@@ -155,9 +149,6 @@ export const createConsumoVaca = async (req, res, next) => {
 export const getConsumoVaca = async (req, res, next) => {
     try {
         const { vacaId } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(vacaId)) {
-            return next(new AppError("ID no valido"));
-        }
 
         const vacaExiste = await VacaRepository.getById(vacaId);
         if (!vacaExiste) {
@@ -178,13 +169,7 @@ export const getConsumoVaca = async (req, res, next) => {
 export const updateConsumoController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { cantidad, observaciones } = req.body;
-        const new_date = {};
-
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("ID no valido", 400));
-        }
-
+        const new_data = {};
         const consumoExistente = await ConsumoRepository.getById(id);
         if (!consumoExistente) {
             return next(new AppError("Consumo no encontrado", 404));
@@ -195,14 +180,11 @@ export const updateConsumoController = async (req, res, next) => {
             return next(new AppError("Insumo no encontrado", 404));
         }
 
-        const validacion = new Validations({ cantidad, observaciones });
+        const errores = validarInput(req.body, {
+            cantidad: { type: "number" },
+            observaciones: { type: "string", min: 1, max: 100 },
+        });
 
-        validacion
-            .isNumber("cantidad")
-            .isString("observaciones")
-            .min_max_length("observaciones", 1, 100);
-
-        const errores = validacion.obtenerErrores();
         if (errores.length > 0) {
             return next(new AppError("Errores de validacion", 400, errores));
         }
@@ -221,14 +203,14 @@ export const updateConsumoController = async (req, res, next) => {
 
             insumo.stock -= diferencia;
             await insumo.save();
-            new_date.cantidad = cantidad;
+            new_data.cantidad = cantidad;
         }
 
         if (observaciones) {
-            new_date.observaciones = observaciones;
+            new_data.observaciones = observaciones;
         }
 
-        const consumoActualizado = await ConsumoRepository.update(id, new_date);
+        const consumoActualizado = await ConsumoRepository.update(id, new_data);
 
         return res
             .status(200)
@@ -241,9 +223,6 @@ export const updateConsumoController = async (req, res, next) => {
 export const deleteConsumoController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return next(new AppError("ID no valido", 400));
-        }
 
         const eliminado = await ConsumoRepository.delete(id);
         return res.status(200).json(new ApiResponse(200, "Succes", eliminado));

@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middlewares/auth.meddleware.js";
+import validarId from "../middlewares/validarId.middleware.js";
 import {
     createVacaController,
     deleteVacaController,
@@ -8,18 +10,52 @@ import {
     seguimientoController,
     updateVacaController,
 } from "../controllers/vaca.controller.js";
-import authMiddleware from "../middlewares/auth.meddleware.js";
 
 const vacaRoute = express.Router();
 
-vacaRoute.get("/rodeo/:rodeoId", authMiddleware(), getVacasController);
-vacaRoute.post("/rodeo/:rodeoId", authMiddleware(), createVacaController);
+vacaRoute.get(
+    "/rodeo/:rodeoId",
+    authMiddleware(),
+    validarId("rodeoId", "ID de rodeo"),
+    getVacasController
+);
+vacaRoute.post(
+    "/rodeo/:rodeoId",
+    authMiddleware(),
+    validarId("rodeoId", "ID de rodeo"),
+    createVacaController
+);
 
-vacaRoute.get("/:id", authMiddleware(), getVacaByIdController);
-vacaRoute.put("/:id", authMiddleware(), updateVacaController);
-vacaRoute.get("/:id/seguimiento", authMiddleware(), seguimientoController);
-vacaRoute.delete("/:id", authMiddleware(), deleteVacaController);
+vacaRoute.get(
+    "/:id",
+    authMiddleware(),
+    validarId("Id", "ID de vaca"),
+    getVacaByIdController
+);
+vacaRoute.put(
+    "/:id",
+    authMiddleware(),
+    validarId("Id", "ID de vaca"),
+    updateVacaController
+);
+vacaRoute.get(
+    "/:id/seguimiento",
+    authMiddleware(),
+    validarId("Id", "ID de vaca"),
+    seguimientoController
+);
+vacaRoute.delete(
+    "/:id",
+    authMiddleware(),
+    validarId("Id", "ID de vaca"),
+    deleteVacaController
+);
 
-vacaRoute.post("/:id/mover", authMiddleware(), moverVacaController);
+vacaRoute.post(
+    "/:id/mover",
+    authMiddleware(),
+    validarId("Id", "ID de vaca"),
+    moverVacaController
+);
 
 export default vacaRoute;

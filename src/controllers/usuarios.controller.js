@@ -1,10 +1,8 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import ApiResponse from "../helpers/api.response.helpers.js";
 import AppError from "../helpers/errors.helpers.js";
-import Validations from "../helpers/validation.helpers.js";
 import UsuarioRepository from "../repositories/usuario.repository.js";
-import ENVIROMENT from "../config/enviroment.config.js";
+import { funcionCrearObj, validarInput } from "../helpers/funciones.helpers.js";
 
 export const registerController = async (req, res, next) => {
     try {
@@ -16,16 +14,11 @@ export const registerController = async (req, res, next) => {
             );
         }
 
-        const validacion = new Validations({ name, email, password });
-
-        validacion
-            .isString("name")
-            .min_max_length("name", 1, 20)
-            .isEmail("email")
-            .isString("password")
-            .min_max_length("password", 8, 20);
-
-        const errores = validacion.obtenerErrores();
+        const errores = validarInput(req.body, {
+            name: { type: "string", min: 1, max: 20 },
+            email: { type: "email" },
+            password: { type: "string", min: 8, max: 20 },
+        });
 
         if (errores.length > 0) {
             return next(new AppError("Errores de validacion", 400, errores));
@@ -39,9 +32,11 @@ export const registerController = async (req, res, next) => {
             email: email,
         };
 
-        await UsuarioRepository.create(new_user);
+        const user = await UsuarioRepository.create(new_user);
 
-        return res.status(201).json(new ApiResponse(201, "Registro exitoso"));
+        return res
+            .status(201)
+            .json(new ApiResponse(201, "Registro exitoso", user));
     } catch (error) {
         next(error);
     }
@@ -64,9 +59,6 @@ export const getUsuariosController = async (req, res, next) => {
 export const getUsuarioByIdController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id) {
-            return next(new AppError("Falta user Id", 400));
-        }
 
         const user = await UsuarioRepository.getById(id);
         if (!user) {
@@ -82,44 +74,31 @@ export const getUsuarioByIdController = async (req, res, next) => {
 export const updateUsuarioController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id) {
-            return next(new AppError("Falta user Id", 400));
-        }
 
-        const { name, password, email, rol } = req.body;
-        const validacion = new Validations({ name, email, password, rol });
-
-        validacion
-            .isString("name")
-            .min_max_length("name", 1, 20)
-            .isEmail("email")
-            .isString("password")
-            .min_max_length("password", 8, 20);
-
-        const errores = validacion.obtenerErrores();
+        const errores = validarInput(req.body, {
+            name: { type: "string", min: 1, max: 20 },
+            email: { type: "email" },
+            rol: { type: "string", min: 1, max: 15 },
+            password: { type: "string", min: 8, max: 20 },
+        });
 
         if (errores.length > 0) {
             return next(new AppError("Errores de validacion", 400, errores));
         }
 
-        const new_data = {};
+        const new_data = funcionCrearObj(
+            ["name", "email", "password", "rol"],
+            req.body
+        );
 
-        if (name) {
-            new_data.name = name;
-        }
-        if (password) {
-            const new_password = await bcrypt.hash(password, 10);
-            new_data.password = new_password;
-        }
-        if (email) {
-            new_data.email = email;
-        }
-        if (rol) {
-            new_data.rol = rol;
+        if (new_data.password) {
+            new_data.password = await bcrypt.hash(new_data.password, 10);
         }
 
-        await UsuarioRepository.update(id, new_data);
-        return res.status(200).json(new ApiResponse(200, "Succes"));
+        const updateUsuer = await UsuarioRepository.update(id, new_data);
+        return res
+            .status(200)
+            .json(new ApiResponse(200, "Succes", updateUsuer));
     } catch (error) {
         if (error.code === 11000) {
             return next(
@@ -133,9 +112,6 @@ export const updateUsuarioController = async (req, res, next) => {
 export const activeUsuarioController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id) {
-            return next(new AppError("Falta id", 404));
-        }
 
         await UsuarioRepository.activar(id);
         return res.status(200).json(new ApiResponse(200, "Succes"));
@@ -147,9 +123,6 @@ export const activeUsuarioController = async (req, res, next) => {
 export const desactiveUsuarioController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id) {
-            return next(new AppError("Falta id", 404));
-        }
 
         await UsuarioRepository.desactivar(id);
         return res.status(200).json(new ApiResponse(200, "Succes"));
@@ -161,9 +134,6 @@ export const desactiveUsuarioController = async (req, res, next) => {
 export const deleteUsuarioController = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (!id) {
-            return next(new AppError("Falta id", 404));
-        }
 
         await UsuarioRepository.delete(id);
         return res.status(200).json(new ApiResponse(200, "Succes"));

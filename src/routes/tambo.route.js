@@ -1,4 +1,6 @@
 import express from "express";
+import authMiddleware from "../middlewares/auth.meddleware.js";
+import validarId from "../middlewares/validarId.middleware.js";
 import {
     activeTamboController,
     createTamboController,
@@ -8,7 +10,6 @@ import {
     getTambosController,
     updateTamboController,
 } from "../controllers/tambo.controller.js";
-import authMiddleware from "../middlewares/auth.meddleware.js";
 
 const tamboRoute = express.Router();
 
@@ -16,17 +17,38 @@ tamboRoute.get("/", authMiddleware(), getTambosController);
 
 tamboRoute.post("/", authMiddleware(["admin"]), createTamboController);
 
-tamboRoute.get("/:id", authMiddleware(), getTamboByIdController);
+tamboRoute.get(
+    "/:id",
+    authMiddleware(),
+    validarId("id", "Id de tambo"),
+    getTamboByIdController
+);
 
-tamboRoute.put("/:id", authMiddleware(["admin"]), updateTamboController);
+tamboRoute.put(
+    "/:id",
+    authMiddleware(["admin"]),
+    validarId("id", "Id de tambo"),
+    updateTamboController
+);
 
-tamboRoute.put("/:id/active", authMiddleware(["admin"]), activeTamboController);
+tamboRoute.put(
+    "/:id/active",
+    authMiddleware(["admin"]),
+    validarId("id", "Id de tambo"),
+    activeTamboController
+);
 tamboRoute.put(
     "/:id/desactive",
     authMiddleware(["admin"]),
+    validarId("id", "Id de tambo"),
     desactiveTamboController
 );
 
-tamboRoute.delete("/:id", authMiddleware(["admin"]), deleteTamboController);
+tamboRoute.delete(
+    "/:id",
+    authMiddleware(["admin"]),
+    validarId("id", "Id de tambo"),
+    deleteTamboController
+);
 
 export default tamboRoute;

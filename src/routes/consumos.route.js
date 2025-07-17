@@ -8,19 +8,46 @@ import {
     getConsumoVaca,
     updateConsumoController,
 } from "../controllers/consumo.controller.js";
+import validarId from "../middlewares/validarId.middleware.js";
 
 const consumosRoute = express.Router();
 
-consumosRoute.get("/rodeo/:rodeoId", authMiddleware(), getConsumoRodeo);
-consumosRoute.post("/rodeo/:rodeoId", authMiddleware(), createConsumoRodeo);
+consumosRoute.get(
+    "/rodeo/:rodeoId",
+    authMiddleware(),
+    validarId("rodeoId", "Id de rodeo"),
+    getConsumoRodeo
+);
+consumosRoute.post(
+    "/rodeo/:rodeoId",
+    authMiddleware(),
+    validarId("rodeoId", "Id de rodeo"),
+    createConsumoRodeo
+);
 
-consumosRoute.get("/vaca/:vacaId", authMiddleware(), getConsumoVaca);
-consumosRoute.post("/vaca/:vacaId", authMiddleware(), createConsumoVaca);
+consumosRoute.get(
+    "/vaca/:vacaId",
+    authMiddleware(),
+    validarId("vacaId", "Id de vaca"),
+    getConsumoVaca
+);
+consumosRoute.post(
+    "/vaca/:vacaId",
+    authMiddleware(),
+    validarId("vacaId", "Id de vaca"),
+    createConsumoVaca
+);
 
-consumosRoute.put("/:id", authMiddleware(), updateConsumoController);
+consumosRoute.put(
+    "/:id",
+    authMiddleware(),
+    validarId("ID", "ID de consumo"),
+    updateConsumoController
+);
 consumosRoute.delete(
     "/:id",
     authMiddleware(["admin"]),
+    validarId("ID", "ID de consumo"),
     deleteConsumoController
 );
 
